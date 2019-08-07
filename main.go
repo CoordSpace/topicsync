@@ -2,22 +2,38 @@ package main
 
 import (
 	"fmt"
-	//"sync"
+	"sync"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
-	//"strings"
-	//"time"
+	"time"
 	"github.com/bwmarrin/discordgo"
 	"github.com/lrstanley/girc"
 	"github.com/spf13/viper"
 )
 
-// var (
-// 	topic string
-// 	time_set Time
-// )
+type ircClient struct {
+	client		*girc.Client
+	isReady		bool
+}
+
+type discordClient struct {
+	session		*discordgo.Session
+	isReady		bool
+}
+
+type topicInfo struct {
+	topic		string
+	timeSet		time.Time
+	mutex		sync.Mutex
+}
+
+var (
+	i	*ircClient
+	d	*discordClient
+	t	*topicInfo
+)
 
 func StartIRC() {
 	log.Print("Starting up IRC...")
@@ -28,50 +44,66 @@ func StartIRC() {
 		User:   viper.GetString("irc.user"),
 		Name:   viper.GetString("irc.name"),
 	}
-	client := girc.New(config)
+
+	// Setup our IRC client instance
+	i := &ircClient {
+		client: girc.New(config),
+		isReady: false,
+	}
 
 	log.Print("Setting up IRC Handlers...")
-	client.Handlers.Add(girc.CONNECTED, func(c *girc.Client, e girc.Event) {
+	i.client.Handlers.Add(girc.CONNECTED, func(c *girc.Client, e girc.Event) {
 		c.Cmd.Join(viper.GetString("irc.channel"))
+		// Set IRC client as ready
+		i.isReady = true
 	})
 
-	client.Handlers.Add(girc.TOPIC, IRCTopicUpdate)
+	i.client.Handlers.Add(girc.TOPIC, func (c *girc.Client, e girc.Event) {
+		log.Println("Topic changed! - Channel: ", e.Params[0], ". Topic: ", e.Last())
+	})
 
 	log.Print("Connecting to IRC server...")
-	if err := client.Connect(); err != nil {
-		log.Fatalf("an error occurred while attempting to connect to %s: %s", client.Server(), err)
+	if err := i.client.Connect(); err != nil {
+		log.Fatalf("an error occurred while attempting to connect to %s: %s", i.client.Server(), err)
 	}
-}
-
-// Callback function for IRC topic change events
-func IRCTopicUpdate(c *girc.Client, e girc.Event) {
-	log.Println("Topic changed! - Channel: ", e.Params[0], ". Topic: ", e.Last())
 }
 
 func StartDiscord() {
 	log.Print("Starting up Discord...")
-		// Create a new Discord session using the provided bot token.
-		dg, err := discordgo.New("Bot " + viper.GetString("discord.token"))
-		if err != nil {
-			log.Fatalf("Error creating Discord session,", err)
-			return
-		}
-	
-		// Register the messageCreate func as a callback for ChannelUpdate events.
-		dg.AddHandler(DiscordChannelUpdate)
-	
-		log.Print("Connecting to Discord server...")
-		// Open a websocket connection to Discord and begin listening.
-		err = dg.Open()
-		if err != nil {
-			log.Fatalf("Error opening connection to Discord,", err)
-			return
-		}
-}
 
-// Callback function for Discord channel update events
-func DiscordChannelUpdate(s *discordgo.Session, u *discordgo.ChannelUpdate) {
-	log.Print("Channel Update in ", u.Name, ": ", u.Topic)
+	// Create a new Discord session using the provided bot token.
+	dg, err := discordgo.New("Bot " + viper.GetString("discord.token"))
+
+	if err != nil {
+		log.Fatalf("Error creating Discord session,", err)
+		return
+	}
+
+	d := &discordClient {
+		session: dg,
+		isReady: false,
+	}
+
+	// Register the messageCreate func as a callback for ChannelUpdate events.
+	d.session.AddHandler(func(s *discordgo.Session, u *discordgo.ChannelUpdate) {
+		log.Print("Channel Update in ", u.Name, ": ", u.Topic)
+		// check the event channel name against the one in the config
+		// then start the mutex topic update
+	})
+
+	// Callback to handle the ready event when the bot is connected
+	d.session.AddHandler(func(s *discordgo.Session, m *discordgo.Ready) {
+		// set Discord client as ready
+		d.isReady = true
+	})
+
+	log.Print("Connecting to Discord server...")
+	// Open a websocket connection to Discord and begin listening.
+	err = d.session.Open()
+	if err != nil {
+		log.Fatalf("Error opening connection to Discord,", err)
+		return
+	}
 }
 
 func SetupConfig() {
@@ -93,6 +125,14 @@ func main() {
 
 	// load config from file
 	SetupConfig()
+
+	// initialize the topic checker
+	t := &topicInfo{
+		topic: "",
+		timeSet: time.Now(),
+	}
+
+	log.Print(t.timeSet)
 
 	// start up irc goroutine
 	go StartIRC()
