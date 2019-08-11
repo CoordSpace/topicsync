@@ -1,0 +1,24 @@
+---
+irc:
+  server: servercentral.il.us.quakenet.org
+  port: 6667
+  user: TopicBot
+  nick: TopicBot
+  name: A Topic Sync Bot
+  channel: '#TopicBotTest'
+  usermode: +ix
+  auth:
+    bot: Q@CServe.quakenet.org
+    cmd: AUTH TopicBot AGEwikLMrS
+discord:
+  token: 'NjA4MTc0NDM4MzExMDAyMTEz.XUkUxg.QIfAHtEPqxK_41ylIFmj1HNhZhM'
+  channelID: 
+# Discord topic update message format
+# [Emoji] Topic Updated: [This is the topic message.]
+updateFormat: "%s Topic Updated: %s"
+# Optional - Random Emojis for added topic update message flair
+emojis:
+  - ⚠️
+  - 🔔
+  - 🚨
+...
