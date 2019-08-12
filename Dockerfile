@@ -16,7 +16,8 @@ FROM scratch
 
 COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /go/bin/topicsync /go/bin/topicsync
-COPY config.yaml /etc/topicsync/
+# Copy over the root certs from ca-certificates
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 USER appuser
 
 CMD ["/go/bin/topicsync"]
