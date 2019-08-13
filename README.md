@@ -56,15 +56,21 @@ To get a local copy compiled and running follow these simple steps.
 
 ### Installation
  
-Download the latest code into your go directory:
+Download the latest code into your Go directory:
 ```sh
 cd $GOPATH
 go get github.com/CoordSpace/topicsync
 ```
 
-Once that's done, you should have a compiled binary in your /bin directory!
+Once that's done, you should have a compiled binary in your /bin directory all ready to go!
 
-Now open up a new yaml file called `config.yaml` and paste the contents of the `config-sample.yaml` file from this repo into it and edit to meet your needs.
+Now open up a new yaml file called `config.yaml` and paste the contents of the `config-sample.yaml` file from this repo into it and edit to meet your needs. 
+
+The edited `config.yaml` file __must be stored in one of three valid directories__ in order for this program to find and use it:
+
+* `/etc/topicsync/`
+* `$HOME/.topicsync`
+* `./` (The same directory as the binary)
 
 
 #### Example Config.yaml
@@ -95,18 +101,11 @@ updateFormat: "%s Topic Updated: %s"
 emojis:
   - ⚠️
   - 🔔
-  - 🚨
 ...
 
 ```
 
-This configuration file must be stored in one of three valid directories in order for this program to use it:
-
-* `/etc/topicsync/`
-* `$HOME/.topicsync`
-* `./` (The same directory as the binary)
-
-Lastly just run the binary using the process supervisor of your choice. It will automatically find your config file and start connecting to the servers and channels of your choice. By default, __the existing channel topics in the pair will not sync immediately upon joining.__ So issue a new topic on either side to get the process started. 
+Lastly, just run the binary. It will automatically find your config file and start connecting to the servers and channels of your choice. By default, __the existing channel topics in the pair will not sync immediately upon joining.__ So issue a new topic on either side to get the process started. 
 
 
 ### Docker
