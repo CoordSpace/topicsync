@@ -94,9 +94,11 @@ func (context *context) topicHandlerIRC(c *girc.Client, e girc.Event) {
 		context.topic = topicClean
 	} else {
 		// Post the topic change alert to the channel when the syncing dust settles
-		_, err := context.postTopicAlertDiscord(context.channelPairs[e.Params[0]], topicClean)
-		if err != nil {
-			log.Panicf("Error posting discord topic alert: %s \n", err)
+		if viper.IsSet("updateFormat") {
+			_, err := context.postTopicAlertDiscord(context.channelPairs[e.Params[0]], topicClean)
+			if err != nil {
+				log.Panicf("Error posting discord topic alert: %s \n", err)
+			}
 		}
 		log.Print("Duplicate topic, ignoring")
 	}
@@ -152,9 +154,11 @@ func (context *context) channelUpdateHandlerDiscord(s *discordgo.Session, u *dis
 		}
 	} else {
 		// Post the topic change alert to the channel when the syncing dust settles
-		_, err := context.postTopicAlertDiscord(u.ID, topicClean)
-		if err != nil {
-			log.Panicf("Error posting discord topic alert: %s \n", err)
+		if viper.IsSet("updateFormat") {
+			_, err := context.postTopicAlertDiscord(u.ID, topicClean)
+			if err != nil {
+				log.Panicf("Error posting discord topic alert: %s \n", err)
+			}
 		}
 		log.Print("Duplicate topic, ignoring")
 	}

@@ -1,8 +1,6 @@
 [![LinkedIn][linkedin-shield]][linkedin-url]
 
 
-
-<!-- PROJECT LOGO -->
 <br />
 <p align="center">
   <h1 align="center">Topic Sync</h1>
@@ -11,14 +9,13 @@
 </p>
 
 
-<!-- TABLE OF CONTENTS -->
 ## Table of Contents
-
 * [About the Project](#about-the-project)
   * [Built With](#built-with)
 * [Getting Started](#getting-started)
   * [Prerequisites](#prerequisites)
   * [Installation](#installation)
+  * [Docker](#Docker)
 * [Roadmap](#roadmap)
 * [Contributing](#contributing)
 * [License](#license)
@@ -34,9 +31,9 @@ This is a simple, small, and easy to configure golang bot for connecting and bid
 
 Any topic updates in those channels will be synced with the other nearly instantly and a topic change alert will be posted in Discord to mirror the alert normally shown in IRC.
 
-It was made to compliment a large stack of chat and site services for an independent game streaming community spread out over two chat networks. Since [matterbridge](https://github.com/42wim/matterbridge) doesn't support topic syncing for the time being, this was developed to fill in the gap.
+It was made to compliment an existing kubernetes cluster of chat and site services for an independent game streaming community spread out over two chat networks. Since [matterbridge](https://github.com/42wim/matterbridge) doesn't support topic syncing for the time being, this was developed to fill in the feature gap.
 
-If there's demand, this project could be extended to support multiple channels or other configuration needs so feel free to <a href="https://github.com/CoordSpace/topicsync/issues">request a feature!</a>
+If there is demand, this project could be extended to support multiple channels, networks, or other configuration needs so feel free to <a href="https://github.com/CoordSpace/topicsync/issues">request a feature!</a>
 
 
 ### Built With
@@ -45,31 +42,75 @@ If there's demand, this project could be extended to support multiple channels o
 * [girc](https://github.com/lrstanley/girc)
 * [viper](https://github.com/spf13/viper)
 
-
-
-<!-- GETTING STARTED -->
 ## Getting Started
 
-To get a local copy up and running follow these simple steps.
+To get a local copy compiled and running follow these simple steps.
 
 ### Prerequisites
 
-This is an example of how to list things you need to use the software and how to install them.
-* npm
-```sh
-npm install npm@latest -g
-```
+* A working Go install with a functional GOPATH
+* A Q/Nickserv account registered for the bot with auto-op/half-op set for its account in the desired IRC channel
+* Lastly, a bot account must be created in Discord and added to your Discord server with the Manage Channels permission (to be able to edit the topic)
 
 ### Installation
  
-1. Clone the topicsync
+Download the latest code into your go directory:
 ```sh
-git clone https:://github.com/CoordSpace/topicsync.git
+cd $GOPATH
+go get github.com/CoordSpace/topicsync
 ```
-2. Install NPM packages
-```sh
-npm install
+
+Once that's done, you should have a compiled binary in your /bin directory!
+
+Now open up a new yaml file called `config.yaml` and paste the contents of the `config-sample.yaml` file from this repo into it and edit to meet your needs.
+
+### Example Config.yaml
+
 ```
+---
+irc:
+  server: irc.coolnetwork.chat
+  port: 6667
+  user: TopicBot
+  nick: TopicBot
+  name: A Topic Sync Bot
+  # IRC channel to join (e.g. '#TopicBotTest')
+  channel: '#CoolChatroom
+  # Optional - Bot name and command to auth with IRC services
+  auth:
+    bot: NickServ@coolnetwork.chat
+    cmd: IDENTIFY foo password
+discord:
+  token: 'a-big-string-from-the-discord-dev-portal-bot-settings'
+  # The ID of the channel to track, found using discord dev-mode 
+  # and right-clicking on the channel
+  channelID: '38104041843693923425'
+# Topic update message formatting string for Discord
+# [Emoji] Topic Updated: [This is the topic message.]
+updateFormat: "%s Topic Updated: %s"
+# Optional - Random Emojis for added topic update flair in Discord
+emojis:
+  - ⚠️
+  - 🔔
+  - 🚨
+...
+
+```
+
+This configuration file must be stored in one of three valid directories in order for this program to use it:
+
+* `/etc/topicsync/`
+* `$HOME/.topicsync`
+* `./` (The same directory as the binary)
+
+Lastly just run the binary using the process supervisor of your choice. It will automatically find your config file and start connecting to the servers and channels of your choice. By default, __the existing channel topics in the pair will not sync immediately upon joining.__ So issue a new topic on either side to get the process started. 
+
+### Docker
+A hyper-minimal, statically-linked Docker image is also available for fast integration into existing containerized stacks.
+
+Just create your local `config.yaml` configuration from the repo's sample template and mount it to the latest Docker build with:
+
+`docker run -ti -v /path/to/config.yaml:/etc/topicsync/config.yaml coordspace/topicsync`
 
 <!-- ROADMAP -->
 ## Roadmap
