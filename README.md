@@ -15,7 +15,7 @@
 * [Getting Started](#getting-started)
   * [Prerequisites](#prerequisites)
   * [Installation](#installation)
-  * [Docker](#Docker)
+  * [Docker](#docker)
 * [Roadmap](#roadmap)
 * [Contributing](#contributing)
 * [License](#license)
