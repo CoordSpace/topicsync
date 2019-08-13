@@ -22,7 +22,6 @@
 * [Contact](#contact)
 
 
-<!-- ABOUT THE PROJECT -->
 ## About The Project
 
 [![Short Topic Sync Demo][product-screenshot]]
@@ -42,15 +41,18 @@ If there is demand, this project could be extended to support multiple channels,
 * [girc](https://github.com/lrstanley/girc)
 * [viper](https://github.com/spf13/viper)
 
+
 ## Getting Started
 
 To get a local copy compiled and running follow these simple steps.
+
 
 ### Prerequisites
 
 * A working Go install with a functional GOPATH
 * A Q/Nickserv account registered for the bot with auto-op/half-op set for its account in the desired IRC channel
 * Lastly, a bot account must be created in Discord and added to your Discord server with the Manage Channels permission (to be able to edit the topic)
+
 
 ### Installation
  
@@ -64,7 +66,8 @@ Once that's done, you should have a compiled binary in your /bin directory!
 
 Now open up a new yaml file called `config.yaml` and paste the contents of the `config-sample.yaml` file from this repo into it and edit to meet your needs.
 
-### Example Config.yaml
+
+#### Example Config.yaml
 
 ```
 ---
@@ -104,6 +107,7 @@ This configuration file must be stored in one of three valid directories in orde
 * `./` (The same directory as the binary)
 
 Lastly just run the binary using the process supervisor of your choice. It will automatically find your config file and start connecting to the servers and channels of your choice. By default, __the existing channel topics in the pair will not sync immediately upon joining.__ So issue a new topic on either side to get the process started. 
+
 
 ### Docker
 A hyper-minimal, statically-linked Docker image is also available for fast integration into existing containerized stacks.
