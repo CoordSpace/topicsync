@@ -84,7 +84,7 @@ irc:
   nick: TopicBot
   name: A Topic Sync Bot
   # IRC channel to join (e.g. '#TopicBotTest')
-  channel: '#CoolChatroom
+  channel: '#CoolChatroom'
   # Optional - Bot name and command to auth with IRC services
   auth:
     bot: NickServ@coolnetwork.chat
